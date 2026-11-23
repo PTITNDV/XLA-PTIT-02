@@ -35,6 +35,15 @@ class ArtisticFilterTests(unittest.TestCase):
             apply_filter(self.image, "Retro effect"),
         )
 
+    def test_emboss_flat_surfaces_have_neutral_background(self) -> None:
+        for value in (0, 100, 255):
+            image = np.full((32, 32, 3), value, dtype=np.uint8)
+            np.testing.assert_array_equal(apply_filter(image, "Emboss"), 128)
+
+    def test_sketch_of_flat_black_image_is_white_paper(self) -> None:
+        image = np.zeros((32, 32, 3), dtype=np.uint8)
+        np.testing.assert_array_equal(apply_filter(image, "Pencil sketch"), 255)
+
     def test_invalid_inputs_are_rejected(self) -> None:
         with self.assertRaises(ValueError):
             apply_filter(self.image[:, :, 0], "Sepia")

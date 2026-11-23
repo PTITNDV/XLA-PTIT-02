@@ -35,6 +35,20 @@ class ImageIOTests(unittest.TestCase):
         with self.assertRaises(OSError):
             decode_image(b"not an image")
 
+    def test_large_image_is_resized_before_output(self) -> None:
+        data = BytesIO()
+        Image.new("RGB", (2400, 1200), "red").save(data, format="PNG")
+        decoded = decode_image(data.getvalue())
+        self.assertEqual(decoded.shape, (800, 1600, 3))
+
+    def test_exif_orientation_is_applied(self) -> None:
+        data = BytesIO()
+        image = Image.new("RGB", (12, 8), "red")
+        exif = image.getexif()
+        exif[274] = 6
+        image.save(data, format="JPEG", exif=exif)
+        self.assertEqual(decode_image(data.getvalue()).shape, (12, 8, 3))
+
 
 if __name__ == "__main__":
     unittest.main()

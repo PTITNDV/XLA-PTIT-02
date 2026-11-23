@@ -33,6 +33,7 @@ def _pencil_sketch(image: np.ndarray) -> np.ndarray:
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     inverted_blur = cv2.GaussianBlur(255 - gray, (0, 0), sigmaX=9)
     sketch = cv2.divide(gray, 255 - inverted_blur, scale=256)
+    sketch[inverted_blur == 255] = 255
     return cv2.cvtColor(sketch, cv2.COLOR_GRAY2RGB)
 
 
@@ -75,7 +76,7 @@ def _oil_painting(image: np.ndarray) -> np.ndarray:
 
 def _emboss(image: np.ndarray) -> np.ndarray:
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-    kernel = np.array([[-2, -1, 0], [-1, 1, 1], [0, 1, 2]], dtype=np.float32)
+    kernel = np.array([[-2, -1, 0], [-1, 0, 1], [0, 1, 2]], dtype=np.float32)
     embossed = cv2.filter2D(gray.astype(np.float32), -1, kernel) + 128
     return cv2.cvtColor(np.clip(embossed, 0, 255).astype(np.uint8), cv2.COLOR_GRAY2RGB)
 

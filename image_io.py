@@ -5,17 +5,20 @@ from io import BytesIO
 import numpy as np
 from PIL import Image, ImageOps
 
-from filters import resize_for_processing
+from filters import MAX_SIDE
 
 
 def decode_image(data: bytes) -> np.ndarray:
     """Decode an image as RGB, orient it and place transparency over white."""
     with Image.open(BytesIO(data)) as source:
+        # JPEG decoders can downsample before allocating the full decoded image.
+        source.draft("RGB", (MAX_SIDE, MAX_SIDE))
         source = ImageOps.exif_transpose(source)
+        source.thumbnail((MAX_SIDE, MAX_SIDE), Image.Resampling.LANCZOS)
         rgba = source.convert("RGBA")
         background = Image.new("RGBA", rgba.size, "white")
         background.alpha_composite(rgba)
-        return resize_for_processing(np.asarray(background.convert("RGB")))
+        return np.asarray(background.convert("RGB")).copy()
 
 
 def encode_image(image: np.ndarray, output_format: str) -> bytes:
