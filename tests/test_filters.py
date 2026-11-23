@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from filters import FILTERS, apply_filter, resize_for_processing
+from filters import FILTERS, FILTER_PARAMETERS, apply_filter, resize_for_processing
 
 
 class ArtisticFilterTests(unittest.TestCase):
@@ -58,6 +58,34 @@ class ArtisticFilterTests(unittest.TestCase):
             apply_filter(self.image, "Missing filter")
         with self.assertRaises(ValueError):
             apply_filter(self.image, "Sepia", 101)
+
+    def test_explicit_defaults_match_implicit_defaults(self) -> None:
+        for name, settings in FILTER_PARAMETERS.items():
+            with self.subTest(name=name):
+                defaults = {key: spec[3] for key, spec in settings.items()}
+                np.testing.assert_array_equal(apply_filter(self.image, name),
+                                              apply_filter(self.image, name, **defaults))
+
+    def test_parameter_boundaries_produce_valid_images(self) -> None:
+        for name, settings in FILTER_PARAMETERS.items():
+            for boundary in (1, 2):
+                with self.subTest(name=name, boundary=boundary):
+                    parameters = {key: spec[boundary] for key, spec in settings.items()}
+                    output = apply_filter(self.image, name, **parameters)
+                    self.assertEqual(output.shape, self.image.shape)
+                    self.assertEqual(output.dtype, np.uint8)
+
+    def test_invalid_parameters_are_rejected(self) -> None:
+        for parameters in ({"grain_amount": -1}, {"grain_amount": float("nan")},
+                           {"grain_amount": float("inf")}, {"unknown": 1}):
+            with self.subTest(parameters=parameters), self.assertRaises(ValueError):
+                apply_filter(self.image, "Retro effect", **parameters)
+
+    def test_zero_ink_has_no_added_black_contours(self) -> None:
+        light = apply_filter(self.image, "Cartoon effect", ink_strength=0)
+        dark = apply_filter(self.image, "Cartoon effect", ink_strength=1)
+        self.assertTrue(np.all(light >= dark))
+        self.assertTrue(np.any(light > dark))
 
     def test_edge_art_contains_only_black_and_white(self) -> None:
         output = apply_filter(self.image, "Edge art")

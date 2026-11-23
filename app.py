@@ -3,7 +3,7 @@
 from PIL import Image, UnidentifiedImageError
 import streamlit as st
 
-from filters import FILTERS, apply_filter
+from filters import FILTERS, FILTER_PARAMETERS, apply_filter
 from image_io import decode_image, encode_image
 
 
@@ -39,11 +39,16 @@ with st.sidebar:
     }
     st.caption(descriptions[selected])
     st.caption("100%: hiệu ứng đầy đủ. Mức thấp hơn: pha với ảnh gốc.")
+    parameters = {}
+    with st.expander("Thông số riêng của bộ lọc", expanded=True):
+        for key, (label, minimum, maximum, default, step, hint) in FILTER_PARAMETERS[selected].items():
+            parameters[key] = st.slider(label, minimum, maximum, default, step,
+                                        key=f"{selected}_{key}", help=hint)
     output_format = st.radio("Định dạng tải về", ["PNG", "JPEG"], horizontal=True)
     st.caption(f"Kích thước xử lý: {original.shape[1]} × {original.shape[0]} px")
 
 with st.spinner("Đang xử lý ảnh..."):
-    result = apply_filter(original, selected, strength)
+    result = apply_filter(original, selected, strength, **parameters)
 
 left, right = st.columns(2)
 with left:
