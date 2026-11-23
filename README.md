@@ -1,5 +1,7 @@
 # Hệ thống tạo ảnh nghệ thuật bằng bộ lọc
 
+Xem [đặc trưng và nguồn tham khảo của bảy bộ lọc](./THAM_KHAO_BO_LOC.md). Đặt cường độ 100% khi so sánh phong cách; các mức thấp hơn pha lại màu và chi tiết ảnh gốc.
+
 Ứng dụng Python xử lý ảnh với bảy hiệu ứng: Pencil sketch, Cartoon, Oil painting, Emboss, Edge art, Sepia và Retro. Xem [kế hoạch chi tiết](./KE_HOACH.md) để biết yêu cầu và thuật toán.
 
 ## Cài đặt
@@ -25,6 +27,8 @@ Mở địa chỉ mà Streamlit in ra (thường là `http://localhost:8501`). T
 Có thể dùng `art_filter_smoke.png` trong thư mục dự án để thử nhanh các hiệu ứng.
 
 ## Kiểm thử
+
+Hiệu ứng Oil painting vẽ nhiều lớp nét cọ theo hướng đường biên, với nét nhỏ tại vùng nhiều chi tiết và độ nổi màu nhẹ. Chọn cường độ 100% để thấy rõ nét cọ, hoặc 70–85% để giữ thêm chi tiết ảnh gốc.
 
 ```powershell
 python -m unittest discover -s tests -v

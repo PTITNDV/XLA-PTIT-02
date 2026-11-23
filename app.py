@@ -28,6 +28,17 @@ with st.sidebar:
     st.header("Tùy chỉnh")
     selected = st.selectbox("Bộ lọc", list(FILTERS))
     strength = st.slider("Cường độ", 0, 100, 100, 5, format="%d%%")
+    descriptions = {
+        "Pencil sketch": "Nét chì với bóng xám và gạch bóng nhẹ trên nền giấy sáng.",
+        "Cartoon effect": "Mảng màu đơn giản, có đường viền mực đen.",
+        "Oil painting effect": "Nhiều lớp nét cọ theo đường nét vật thể, có độ nổi sơn nhẹ.",
+        "Emboss": "Chạm nổi màu xám với các cạnh sáng và tối theo hướng ánh sáng.",
+        "Edge art": "Nét biên đen trên nền trắng, không tô bóng.",
+        "Sepia": "Ảnh đơn sắc nâu với vùng sáng màu kem.",
+        "Retro effect": "Phim màu cũ: màu phai, hạt nhẹ và tối góc.",
+    }
+    st.caption(descriptions[selected])
+    st.caption("100%: hiệu ứng đầy đủ. Mức thấp hơn: pha với ảnh gốc.")
     output_format = st.radio("Định dạng tải về", ["PNG", "JPEG"], horizontal=True)
     st.caption(f"Kích thước xử lý: {original.shape[1]} × {original.shape[0]} px")
 

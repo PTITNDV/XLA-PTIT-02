@@ -26,8 +26,8 @@ Luồng xử lý: `tệp tải lên → Pillow giải mã/chuẩn hóa RGB → O
 | Bộ lọc | Phương pháp chính | Mô tả |
 | --- | --- | --- |
 | Pencil sketch | Grayscale, Gaussian convolution, color dodge | Đảo ảnh xám, làm mờ rồi chia ảnh để tạo nét chì sáng. |
-| Cartoon | Bilateral filter, color quantization, adaptive threshold | Làm phẳng màu nhưng giữ biên, giảm số mức màu và phủ đường viền đen. |
-| Oil painting | Gaussian convolution, local intensity histogram | Trong vùng lân cận, chọn nhóm cường độ sáng phổ biến và dùng màu trung bình của nhóm. |
+| Cartoon | Bilateral filter, color quantization, Canny | Làm phẳng màu nhưng giữ biên, giảm số mức màu và phủ đường viền đen. |
+| Oil painting | Bilateral, gradient, layered brush strokes | Trong vùng lân cận, chọn nhóm cường độ sáng phổ biến và dùng màu trung bình của nhóm. |
 | Emboss | Convolution 3×3 | Lọc hướng ánh sáng rồi cộng nền xám 128. |
 | Edge art | Canny edge detection | Tạo nét đen trên nền trắng, sau khi làm mờ khử nhiễu. |
 | Sepia | Color transform | Nhân ma trận màu nâu cổ điển. |
