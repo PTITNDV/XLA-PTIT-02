@@ -2,7 +2,19 @@
 
 Xem [đặc trưng và nguồn tham khảo của bảy bộ lọc](./THAM_KHAO_BO_LOC.md). Đặt cường độ 100% khi so sánh phong cách; các mức thấp hơn pha lại màu và chi tiết ảnh gốc.
 
-Ứng dụng Python xử lý ảnh với bảy hiệu ứng: Pencil sketch, Cartoon, Oil painting, Emboss, Edge art, Sepia và Retro. Xem [kế hoạch chi tiết](./KE_HOACH.md) để biết yêu cầu và thuật toán.
+Ứng dụng Python xử lý ảnh với bảy hiệu ứng: Pencil sketch, Cartoon, Oil painting, Emboss, Edge art, Sepia và Retro. Xem [báo cáo bài tập lớn](./BAO_CAO_BTL.docx) để biết cơ sở lý thuyết, thuật toán và kết quả thực nghiệm.
+
+## Thuật toán tự cài đặt
+
+Phần xử lý ảnh không dùng OpenCV. [numpy_ops.py](./numpy_ops.py) tự cài đặt Gaussian, bilateral, Sobel, Canny (làm mảnh và liên kết biên), tương quan/tích chập, dilation, resize theo diện tích, vẽ elip và blending bằng NumPy. [filters.py](./filters.py) kết hợp chúng thành bảy hiệu ứng. Pillow đọc/lưu ảnh, xử lý EXIF và alpha; Streamlit tạo giao diện.
+
+Kết quả có thể khác bản OpenCV do trọng số, xử lý biên và làm tròn. Sơn dầu và Canny có thể chậm trên ảnh lớn.
+
+### Đọc phần giải thích hàm
+
+Mỗi hàm trong [numpy_ops.py](./numpy_ops.py), [filters.py](./filters.py) và [image_io.py](./image_io.py) có chú thích `#` tiếng Việt ngắn ngay phía trước, tóm tắt chức năng của hàm. Riêng `paint_ellipse` sửa canvas tại chỗ.
+
+Để theo dõi luồng, bắt đầu từ `apply_filter` trong [filters.py](./filters.py), xem hàm hiệu ứng tương ứng, rồi đọc các phép toán nền được gọi trong [numpy_ops.py](./numpy_ops.py). `canny` được tách thành Sobel, làm mảnh biên và liên kết biên để thuận tiện đối chiếu thuật toán.
 
 ## Cài đặt
 
@@ -55,5 +67,11 @@ python -m unittest discover -s tests -v
 - `filters.py`: bảy thuật toán và hàm áp dụng cường độ.
 - `app.py`: giao diện Streamlit.
 - `image_io.py`: đọc, chuẩn hóa và xuất ảnh.
+- `numpy_ops.py`: các thuật toán xử lý ảnh tự cài đặt bằng NumPy.
 - `tests/`: kiểm thử đầu ra, đầu vào lỗi và giới hạn kích thước.
-- `KE_HOACH.md`: kế hoạch và tiêu chí nghiệm thu.
+- `demo/`: ảnh đầu vào dùng để chạy thử.
+- `THAM_KHAO_BO_LOC.md`: đặc trưng và nguồn tham khảo các bộ lọc.
+
+## Báo cáo
+
+[Báo cáo bài tập lớn bản Word](./BAO_CAO_BTL.docx) chứa phần lý thuyết, thuật toán, hình minh họa và kết quả thực nghiệm. Chỉnh sửa trực tiếp bằng Word khi cần.
