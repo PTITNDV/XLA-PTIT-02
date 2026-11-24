@@ -16,11 +16,10 @@ class NumpyOperationsTests(unittest.TestCase):
         gray = ops.grayscale(colors)
         np.testing.assert_array_equal(ops.gray_to_rgb(gray)[..., 2], gray)
 
-    def test_convolution_flips_asymmetric_kernel(self):
+    def test_correlation_preserves_asymmetric_kernel_orientation(self):
         ramp = np.tile(np.arange(7, dtype=np.float32), (5, 1))
         kernel = np.array([[-1, 0, 1]], dtype=np.float32)
         np.testing.assert_array_equal(ops.correlate(ramp, kernel)[:, 1:-1], 2)
-        np.testing.assert_array_equal(ops.convolve(ramp, kernel)[:, 1:-1], -2)
 
     def test_gaussian_impulse_matches_normalized_outer_product(self):
         impulse = np.zeros((9, 9), dtype=np.float32)

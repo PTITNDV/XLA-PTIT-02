@@ -44,11 +44,6 @@ def correlate(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     return result
 
 
-# Tích chập ảnh với kernel: lật kernel 180 độ rồi gọi correlate.
-def convolve(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
-    return correlate(image, np.asarray(kernel)[::-1, ::-1])
-
-
 # Làm mờ ảnh bằng hai lượt Gaussian một chiều: ngang rồi dọc.
 def gaussian_blur(image: np.ndarray, size: tuple[int, int], sigma: float = 0) -> np.ndarray:
     if sigma <= 0:
