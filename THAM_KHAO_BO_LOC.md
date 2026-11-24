@@ -6,9 +6,9 @@ Không có một ảnh đầu ra duy nhất được coi là chuẩn cho mỗi p
 
 | Hiệu ứng | Đặc trưng mục tiêu | Cách thực hiện |
 | --- | --- | --- |
-| Pencil sketch | Nét graphite, nền giấy sáng, bóng xám và gạch bóng nhẹ | Bilateral, Gaussian, color dodge, shading và gạch chéo theo độ tối. |
+| Pencil sketch | Nét xám trên nền giấy sáng | Bilateral, Gaussian và phép chia ảnh cho nền mờ. |
 | Cartoon | Mảng màu đơn giản, nét mực đen rõ, giữ hình dáng chính | Bilateral, lượng tử hóa màu, Canny và trộn đường viền có lõi đen. |
-| Oil painting | Nét cọ chồng lớp, mảng màu, chi tiết chọn lọc | Cọ elip theo tiếp tuyến biên, ba cỡ cọ và chiếu sáng nhẹ trên độ dày lớp sơn. Đây là một lựa chọn tranh có nét cọ; không phải mọi tranh sơn dầu đều có bề mặt nổi. |
+| Oil painting | Nét cọ chồng lớp, mảng màu, chi tiết chọn lọc | Cọ elip theo tiếp tuyến biên với hai cỡ cọ, không mô phỏng độ nổi lớp sơn. |
 | Emboss | Nền xám trung tính, cặp sáng/tối theo hướng để tạo cảm giác chạm nổi | Convolution tổng bằng 0, nền 128, nén tương phản tránh cháy sáng. |
 | Edge art | Chỉ nét đen và nền trắng, không bóng xám hoặc màu | Khử nhiễu, Canny với ngưỡng theo phân bố gradient, đảo thành nét đen. |
 | Sepia | Đơn sắc nâu, chuyển sáng tối liên tục, giữ chi tiết | Chuyển độ chói sang bảng màu nâu từ tối tới trắng kem. |

@@ -81,6 +81,13 @@ class ArtisticFilterTests(unittest.TestCase):
             with self.subTest(parameters=parameters), self.assertRaises(ValueError):
                 apply_filter(self.image, "Retro effect", **parameters)
 
+    def test_removed_decorative_parameters_are_rejected(self) -> None:
+        for name, parameter in (("Pencil sketch", "shading"),
+                                ("Oil painting effect", "paint_relief"),
+                                ("Edge art", "line_width")):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                apply_filter(self.image, name, **{parameter: 1})
+
     def test_zero_ink_has_no_added_black_contours(self) -> None:
         light = apply_filter(self.image, "Cartoon effect", ink_strength=0)
         dark = apply_filter(self.image, "Cartoon effect", ink_strength=1)

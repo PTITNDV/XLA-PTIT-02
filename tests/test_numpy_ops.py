@@ -69,20 +69,6 @@ class NumpyOperationsTests(unittest.TestCase):
         self.assertFalse(np.any(result[:, 10:]))
         self.assertTrue(np.all(np.count_nonzero(result, axis=1) == 1))
 
-    def test_dilation_of_point_is_cross_and_does_not_wrap(self):
-        image = np.zeros((7, 7), dtype=np.uint8)
-        image[3, 3] = 255
-        expected = image.copy()
-        expected[2:5, 3] = expected[3, 2:5] = 255
-        np.testing.assert_array_equal(ops.dilate(image, 3), expected)
-        image[:] = 0
-        image[0, 0] = 255
-        self.assertEqual(np.count_nonzero(ops.dilate(image, 3)), 3)
-        # A positive-offset structuring element shifts a source point positively.
-        image[:] = 0
-        image[3, 3] = 255
-        self.assertEqual(ops.dilate(image, 2)[3, 2], 255)
-
     def test_area_resize_integer_and_fractional_boxes(self):
         image = np.arange(16, dtype=np.uint8).reshape(4, 4)
         np.testing.assert_array_equal(ops.resize_area(image, (2, 2)), [[2, 4], [10, 12]])

@@ -2,11 +2,27 @@
 
 Xem [đặc trưng và nguồn tham khảo của bảy bộ lọc](./THAM_KHAO_BO_LOC.md). Đặt cường độ 100% khi so sánh phong cách; các mức thấp hơn pha lại màu và chi tiết ảnh gốc.
 
-Ứng dụng Python xử lý ảnh với bảy hiệu ứng: Pencil sketch, Cartoon, Oil painting, Emboss, Edge art, Sepia và Retro. Xem [báo cáo bài tập lớn](./BAO_CAO_BTL.docx) để biết cơ sở lý thuyết, thuật toán và kết quả thực nghiệm.
+Ứng dụng Python xử lý ảnh với bảy hiệu ứng: Pencil sketch, Cartoon, Oil painting, Emboss, Edge art, Sepia và Retro.
+
+## Pipeline xử lý
+
+Các hiệu ứng dùng những luồng xử lý sau. Ba hiệu ứng Pencil, Oil painting và Edge art đã được rút gọn để dễ học và trình bày:
+
+| Hiệu ứng | Pipeline hiện tại |
+| --- | --- |
+| Pencil | Xám → bilateral → Gaussian tạo nền → chia ảnh → RGB |
+| Cartoon | Bilateral → lượng tử hóa màu và Canny → phủ viền mực |
+| Oil painting | Bilateral → gradient → hướng cọ → vẽ hai lớp cọ |
+| Emboss | Xám → Gaussian → kernel định hướng → nén đáp ứng → nền xám |
+| Edge art | Xám → Gaussian → chọn ngưỡng → Canny → đảo màu → RGB |
+| Sepia | Xám → nội suy bảng màu nâu → điều chỉnh độ ấm |
+| Retro | Giảm bão hòa → phai màu → lệch sắc → tối góc và hạt phim |
+
+Cường độ chung pha ảnh hiệu ứng với ảnh gốc. Canny giữ đủ Sobel, làm mảnh, ngưỡng kép và liên kết biên. Code của mỗi bước, ví dụ tính toán và hình trung gian được giải thích trong [báo cáo](./BAO_CAO_BTL.docx), mục 4.6–4.14.
 
 ## Thuật toán tự cài đặt
 
-Phần xử lý ảnh không dùng OpenCV. [numpy_ops.py](./numpy_ops.py) tự cài đặt Gaussian, bilateral, Sobel, Canny (làm mảnh và liên kết biên), tương quan/tích chập, dilation, resize theo diện tích, vẽ elip và blending bằng NumPy. [filters.py](./filters.py) kết hợp chúng thành bảy hiệu ứng. Pillow đọc/lưu ảnh, xử lý EXIF và alpha; Streamlit tạo giao diện.
+Phần xử lý ảnh không dùng OpenCV. [numpy_ops.py](./numpy_ops.py) tự cài đặt Gaussian, bilateral, Sobel, Canny (làm mảnh và liên kết biên), tương quan với kernel, resize theo diện tích, vẽ elip và blending bằng NumPy. [filters.py](./filters.py) kết hợp chúng thành bảy hiệu ứng. Pillow đọc/lưu ảnh, xử lý EXIF và alpha; Streamlit tạo giao diện.
 
 Kết quả có thể khác bản OpenCV do trọng số, xử lý biên và làm tròn. Sơn dầu và Canny có thể chậm trên ảnh lớn.
 
@@ -42,11 +58,11 @@ Có thể dùng `art_filter_smoke.png` trong thư mục dự án để thử nha
 
 ### Tinh chỉnh theo từng ảnh
 
-Mở **Thông số riêng của bộ lọc** trên thanh bên. Các giá trị mặc định giữ thiết lập cũ; mỗi ảnh có thể cần điều chỉnh:
+Mở **Thông số riêng của bộ lọc** trên thanh bên. Mỗi ảnh có thể cần điều chỉnh:
 
 | Hiệu ứng | Gợi ý khi ảnh chưa đẹp |
 | --- | --- |
-| Pencil | Giảm độ đậm bóng nếu nền xám; tăng cỡ nét nếu nét quá mảnh. |
+| Pencil | Điều chỉnh cỡ nét; giảm cường độ chung nếu muốn giữ thêm chi tiết nguồn. |
 | Cartoon | Viền che mặt: giảm độ đậm viền xuống 0.4–0.6. Màu quá vụn: tăng mức đơn giản hóa. |
 | Oil painting | Mặt mất chi tiết: cỡ cọ 0.5–0.8. Muốn mảng cọ rõ hơn: 1.2–1.6. |
 | Emboss | Cạnh gắt: độ sâu 0.5–0.8; thử xoay hướng ánh sáng. |
@@ -56,7 +72,7 @@ Mở **Thông số riêng của bộ lọc** trên thanh bên. Các giá trị m
 
 Các khoảng trên là điểm bắt đầu để thử, không đảm bảo tối ưu cho mọi ảnh. Cường độ chung vẫn dùng để pha kết quả với ảnh gốc.
 
-Hiệu ứng Oil painting vẽ nhiều lớp nét cọ theo hướng đường biên, với nét nhỏ tại vùng nhiều chi tiết và độ nổi màu nhẹ. Chọn cường độ 100% để thấy rõ nét cọ, hoặc 70–85% để giữ thêm chi tiết ảnh gốc.
+Hiệu ứng Oil painting vẽ hai lớp nét cọ theo hướng đường biên, với nét nhỏ tại vùng nhiều chi tiết. Chọn cường độ 100% để thấy rõ nét cọ, hoặc 70–85% để giữ thêm chi tiết ảnh gốc.
 
 ```powershell
 python -m unittest discover -s tests -v
@@ -74,4 +90,4 @@ python -m unittest discover -s tests -v
 
 ## Báo cáo
 
-[Báo cáo bài tập lớn bản Word](./BAO_CAO_BTL.docx) chứa phần lý thuyết, thuật toán, hình minh họa và kết quả thực nghiệm. Chỉnh sửa trực tiếp bằng Word khi cần.
+[Báo cáo bài tập lớn](./BAO_CAO_BTL.docx) là bản chính duy nhất, đã đồng bộ với pipeline hiện tại. Báo cáo gồm đủ 10 mục theo yêu cầu môn học, giải thích từng bộ lọc cho người mới, 25 khối code trích từ mã nguồn, 11 hình minh họa và kết quả thực nghiệm của bản rút gọn. Chỉnh sửa trực tiếp trong Word khi cần điền thông tin trang bìa.

@@ -29,9 +29,9 @@ with st.sidebar:
     selected = st.selectbox("Bộ lọc", list(FILTERS))
     strength = st.slider("Cường độ", 0, 100, 100, 5, format="%d%%")
     descriptions = {
-        "Pencil sketch": "Nét chì với bóng xám và gạch bóng nhẹ trên nền giấy sáng.",
+        "Pencil sketch": "Nét chì trên nền giấy sáng, điều chỉnh được cỡ nét.",
         "Cartoon effect": "Mảng màu đơn giản, có đường viền mực đen.",
-        "Oil painting effect": "Nhiều lớp nét cọ theo đường nét vật thể, có độ nổi sơn nhẹ.",
+        "Oil painting effect": "Hai lớp nét cọ lớn và nhỏ theo đường nét vật thể.",
         "Emboss": "Chạm nổi màu xám với các cạnh sáng và tối theo hướng ánh sáng.",
         "Edge art": "Nét biên đen trên nền trắng, không tô bóng.",
         "Sepia": "Ảnh đơn sắc nâu với vùng sáng màu kem.",

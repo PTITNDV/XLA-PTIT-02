@@ -31,24 +31,14 @@ def _validate_image(image: np.ndarray) -> None:
 
 
 # Tạo tranh chì: ảnh xám -> bilateral -> nền Gaussian -> chia ảnh.
-def _pencil_sketch(image: np.ndarray, line_scale: float = 1.0, shading: float = 1.0) -> np.ndarray:
+def _pencil_sketch(image: np.ndarray, line_scale: float = 1.0) -> np.ndarray:
     gray = ops.grayscale(image)
     gray = ops.bilateral_filter(gray, 5, 25, 25)
     sigma = max(1.0, min(image.shape[:2]) / 100 * line_scale)
     background = ops.gaussian_blur(gray, (0, 0), sigma=sigma)
     sketch = np.minimum(gray.astype(np.float32) / np.maximum(background, 1) * 255, 255)
     sketch[background == 0] = 255
-    # Retain a little graphite shading without crushing dark areas into black.
-    darkness = 1 - gray.astype(np.float32) / 255
-    # Sparse diagonal graphite marks become stronger in shadowed regions.
-    yy, xx = np.indices(gray.shape, dtype=np.float32)
-    hatch = np.maximum(0, np.cos((xx + yy * 0.8) * 1.8)) ** 10
-    cross = np.maximum(0, np.cos((xx - yy * 0.8) * 1.8)) ** 10
-    shadow = 0.13 * darkness + 0.1 * darkness * hatch
-    shadow += 0.08 * np.maximum(darkness - 0.5, 0) * cross
-    sketch = np.clip(sketch * (1 - shadow * shading), 0, 255).astype(np.uint8)
-    sketch[background == 0] = 255
-    return ops.gray_to_rgb(sketch)
+    return ops.gray_to_rgb(ops.to_uint8(sketch))
 
 
 # Tạo hoạt hình bằng làm mượt giữ biên, gom màu và phủ nét mực.
@@ -68,8 +58,8 @@ def _cartoon(image: np.ndarray, color_step: float = 32, ink_strength: float = 0.
     return np.clip(color * (1 - ink[:, :, None]), 0, 255).astype(np.uint8)
 
 
-# Mô phỏng sơn dầu bằng ba lớp cọ elip theo cấu trúc ảnh.
-def _oil_painting(image: np.ndarray, brush_size: float = 1.0, paint_relief: float = 3.0) -> np.ndarray:
+# Mô phỏng sơn dầu bằng hai lớp cọ lớn và nhỏ, theo hướng đường nét.
+def _oil_painting(image: np.ndarray, brush_size: float = 1.0) -> np.ndarray:
     height, width = image.shape[:2]
     base = ops.bilateral_filter(image, 7, 40, 35)
     gray = ops.grayscale(base).astype(np.float32)
@@ -80,10 +70,9 @@ def _oil_painting(image: np.ndarray, brush_size: float = 1.0, paint_relief: floa
     angles = np.degrees(np.arctan2(gy, gx)) + 90
     magnitude = np.hypot(gx, gy)
     canvas = ops.gaussian_blur(base, (0, 0), 2).copy()
-    relief = np.zeros((height, width), dtype=np.float32)
     rng = np.random.default_rng(74)
     unit = max(1, min(height, width) / 150) * brush_size
-    for scale in (2.5, 1.2, 0.4):
+    for scale in (2.5, 0.7):
         radius = max(1, round(unit * scale))
         step = max(2, round(radius * 1.25))
         points = [(y, x) for y in range(0, height, step) for x in range(0, width, step)]
@@ -99,12 +88,7 @@ def _oil_painting(image: np.ndarray, brush_size: float = 1.0, paint_relief: floa
             pigment = base[y, x].astype(np.float32) + rng.normal(0, 1.2)
             color = tuple(int(v) for v in np.clip(pigment, 0, 255))
             ops.paint_ellipse(canvas, (x, y), axes, angle, color)
-            ops.paint_ellipse(relief, (x, y), axes, angle, float(rng.uniform(0.3, 1)))
-    # Lighting on overlapping paint ridges gives a restrained impasto texture.
-    relief = ops.gaussian_blur(relief, (0, 0), 0.6)
-    lighting = ops.sobel(relief, 1, 0) - ops.sobel(relief, 0, 1)
-    painted = canvas.astype(np.float32) + lighting[:, :, None] * paint_relief
-    return np.clip(painted, 0, 255).astype(np.uint8)
+    return canvas
 
 
 # Tạo cảm giác chạm nổi bằng kernel định hướng trên ảnh xám.
@@ -120,7 +104,7 @@ def _emboss(image: np.ndarray, depth: float = 1.0, direction: float = 0.0) -> np
 
 
 # Tạo hình nét đen nền trắng từ các biên Canny.
-def _edge_art(image: np.ndarray, sensitivity: float = 1.0, line_width: float = 1.0) -> np.ndarray:
+def _edge_art(image: np.ndarray, sensitivity: float = 1.0) -> np.ndarray:
     gray = ops.grayscale(image)
     blurred = ops.gaussian_blur(gray, (5, 5), 0)
     gx = ops.sobel(blurred, 1, 0)
@@ -130,9 +114,6 @@ def _edge_art(image: np.ndarray, sensitivity: float = 1.0, line_width: float = 1
     high = float(np.clip(np.percentile(nonzero, 72), 30, 180)) if nonzero.size else 80
     high /= sensitivity
     edges = ops.canny(blurred, high * 0.4, high)
-    if line_width > 1:
-        size = int(line_width)
-        edges = ops.dilate(edges, size)
     return ops.gray_to_rgb(255 - edges)
 
 
@@ -180,7 +161,6 @@ FILTERS: dict[str, Callable[..., np.ndarray]] = {
 FILTER_PARAMETERS = {
     "Pencil sketch": {
         "line_scale": ("Cỡ nét chì", 0.5, 2.0, 1.0, 0.1, "Tăng để nét và vùng bóng rộng hơn."),
-        "shading": ("Độ đậm bóng chì", 0.0, 2.0, 1.0, 0.1, "Giảm nếu ảnh bị xám hoặc nhiều vân chì."),
     },
     "Cartoon effect": {
         "color_step": ("Mức đơn giản hóa màu", 8.0, 64.0, 32.0, 4.0, "Tăng để màu gom thành mảng rõ hơn."),
@@ -188,7 +168,6 @@ FILTER_PARAMETERS = {
     },
     "Oil painting effect": {
         "brush_size": ("Cỡ cọ", 0.5, 2.0, 1.0, 0.1, "Giảm cho khuôn mặt; tăng cho nền phong cảnh."),
-        "paint_relief": ("Độ nổi lớp sơn", 0.0, 8.0, 3.0, 0.5, "Tăng để ánh sáng trên lớp sơn rõ hơn."),
     },
     "Emboss": {
         "depth": ("Độ sâu chạm nổi", 0.3, 2.5, 1.0, 0.1, "Giảm nếu cạnh quá gắt."),
@@ -196,7 +175,6 @@ FILTER_PARAMETERS = {
     },
     "Edge art": {
         "sensitivity": ("Độ nhạy bắt nét", 0.5, 2.0, 1.0, 0.1, "Tăng để lấy thêm nét; giảm để loại nét vụn."),
-        "line_width": ("Độ dày nét", 1.0, 3.0, 1.0, 1.0, "Tăng nếu nét quá mảnh."),
     },
     "Sepia": {
         "warmth": ("Độ ấm nâu", 0.0, 1.0, 1.0, 0.05, "0 là đen trắng; 1 là tông nâu đầy đủ."),
@@ -221,8 +199,6 @@ def apply_filter(image: np.ndarray, name: str, strength: int = 100, **parameters
         _, minimum, maximum, _, step, _ = FILTER_PARAMETERS[name][key]
         if not isinstance(value, (int, float)) or not np.isfinite(value) or not minimum <= value <= maximum:
             raise ValueError(f"{key} must be a finite number from {minimum} to {maximum}")
-        if key == "line_width" and value != int(value):
-            raise ValueError("line_width must be an integer")
     if strength == 0:
         return image.copy()
     filtered = FILTERS[name](image, **parameters)

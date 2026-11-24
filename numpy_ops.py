@@ -132,26 +132,6 @@ def canny(image: np.ndarray, low: float, high: float) -> np.ndarray:
     return hysteresis(thin, low, high)
 
 
-# Tạo phần tử cấu trúc hình đĩa dưới dạng mặt nạ bool (size, size).
-def ellipse_footprint(size: int) -> np.ndarray:
-    radius = size // 2
-    yy, xx = np.indices((size, size))
-    return (xx - radius) ** 2 + (yy - radius) ** 2 <= max(1, radius) ** 2
-
-
-# Giãn ảnh xám/nhị phân bằng phần tử cấu trúc đĩa kích thước size.
-def dilate(image: np.ndarray, size: int) -> np.ndarray:
-    radius = size // 2
-    padded = np.pad(image, ((radius, radius), (radius, radius)), mode="constant")
-    result = np.zeros_like(image)
-    h, w = image.shape
-    for y, x in zip(*np.nonzero(ellipse_footprint(size))):
-        # Reflect the offsets: dilation translates each source foreground point.
-        sy, sx = 2 * radius - y, 2 * radius - x
-        np.maximum(result, padded[sy:sy + h, sx:sx + w], out=result)
-    return result
-
-
 # Tạo lưới tọa độ tương đối quanh tâm cọ, bán kính radius pixel.
 @lru_cache(maxsize=64)
 def _brush_grid(radius: int) -> tuple[np.ndarray, np.ndarray]:
