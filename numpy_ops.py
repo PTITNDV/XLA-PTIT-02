@@ -1,8 +1,8 @@
-"""Handwritten image algorithms. NumPy supplies array arithmetic only.
+"""Các thuật toán xử lý ảnh tự cài đặt, dùng NumPy để tính toán trên mảng.
 
-Filtering uses reflected borders, floating-point accumulation and explicit
-rounding to uint8. Canny receives an already smoothed image from its caller.
-These implementations follow the algorithms, not OpenCV's exact rounding.
+Các phép lọc đệm biên phản chiếu, cộng dồn bằng số thực và làm tròn rõ ràng
+khi chuyển về uint8. Canny nhận ảnh đã được làm mượt từ hàm gọi nó.
+Cách cài đặt bám theo thuật toán, không tái tạo chính xác cách làm tròn của OpenCV.
 """
 
 from collections import deque
@@ -102,7 +102,7 @@ def nonmaximum_suppression(magnitude: np.ndarray, gx: np.ndarray, gy: np.ndarray
     for direction, (dy, dx) in enumerate(((0, 1), (1, 1), (1, 0), (1, -1))):
         forward = padded[1 + dy:1 + dy + h, 1 + dx:1 + dx + w]
         backward = padded[1 - dy:1 - dy + h, 1 - dx:1 - dx + w]
-        # One strict comparison prevents a two-pixel plateau from becoming two edges.
+        # Một phía dùng dấu > để tránh giữ cả hai điểm bằng nhau thành biên đôi.
         keep = (directions == direction) & (magnitude > forward) & (magnitude >= backward)
         thin[keep] = magnitude[keep]
     return thin
@@ -167,8 +167,8 @@ def resize_area(image: np.ndarray, size: tuple[int, int]) -> np.ndarray:
     if min(size) < 1:
         raise ValueError("output dimensions must be positive")
     result = image
-    # Shrink width first, and integrate strips rather than copying the full
-    # high-resolution image to float64. Peak temporary memory stays bounded.
+    # Thu chiều rộng trước và tính tổng tích lũy theo từng dải, tránh sao chép
+    # toàn bộ ảnh lớn sang float64 để hạn chế bộ nhớ tạm ở thời điểm cao nhất.
     for axis, count in ((1, size[0]), (0, size[1])):
         source = np.moveaxis(result, axis, 0)
         length = source.shape[0]

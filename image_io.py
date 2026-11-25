@@ -1,4 +1,4 @@
-"""Image decoding and export shared by the UI and tests."""
+"""Giải mã và xuất ảnh, dùng chung cho giao diện và các bài kiểm thử."""
 
 from io import BytesIO
 

@@ -1,4 +1,4 @@
-"""Seven deterministic artistic filters for RGB uint8 images."""
+"""Bảy bộ lọc nghệ thuật cho ảnh RGB uint8, cho kết quả lặp lại với cùng đầu vào."""
 
 from collections.abc import Callable
 
@@ -46,12 +46,12 @@ def _cartoon(image: np.ndarray, color_step: float = 32, ink_strength: float = 0.
     smooth = image.copy()
     for _ in range(2):
         smooth = ops.bilateral_filter(smooth, 9, 55, 45)
-    # Fixed bins keep output deterministic and avoid per-image k-means randomness.
+    # Gom màu theo các mức cố định để kết quả lặp lại, không phân cụm K-means.
     quantized = np.clip(np.round(smooth.astype(np.float32) / color_step) * color_step, 0, 255)
     color = 0.9 * quantized + 0.1 * smooth
     gray = ops.grayscale(smooth)
     edges = ops.canny(gray, 70, 160)
-    # Keep a dark ink core, soften only the transition to the color regions.
+    # Giữ lõi nét mực đậm, chỉ làm mềm phần chuyển tiếp sang vùng màu.
     core = edges.astype(np.float32) / 255
     softened = ops.gaussian_blur(core, (3, 3), 0.6)
     ink = np.maximum(core, softened * 0.79) * ink_strength
@@ -66,7 +66,7 @@ def _oil_painting(image: np.ndarray, brush_size: float = 1.0) -> np.ndarray:
     gray = ops.gaussian_blur(gray, (0, 0), 1.2)
     gx = ops.sobel(gray, 1, 0)
     gy = ops.sobel(gray, 0, 1)
-    # Brush direction follows contours, perpendicular to the brightness gradient.
+    # Hướng cọ đi dọc đường nét, vuông góc với gradient độ sáng.
     angles = np.degrees(np.arctan2(gy, gx)) + 90
     magnitude = np.hypot(gx, gy)
     canvas = ops.gaussian_blur(base, (0, 0), 2).copy()
@@ -80,7 +80,7 @@ def _oil_painting(image: np.ndarray, brush_size: float = 1.0) -> np.ndarray:
         for y, x in points:
             y = int(np.clip(y + rng.integers(-step // 2, step // 2 + 1), 0, height - 1))
             x = int(np.clip(x + rng.integers(-step // 2, step // 2 + 1), 0, width - 1))
-            # Fine strokes are reserved for details; flat areas retain broad paint.
+            # Chỉ vẽ cọ nhỏ ở vùng nhiều chi tiết; vùng phẳng giữ các nét cọ lớn.
             if scale < 1 and magnitude[y, x] < 20:
                 continue
             angle = float(angles[y, x] + rng.normal(0, 12))
@@ -119,7 +119,7 @@ def _edge_art(image: np.ndarray, sensitivity: float = 1.0) -> np.ndarray:
 
 # Ánh xạ độ sáng sang bảng màu nâu từ tối tới trắng kem.
 def _sepia(image: np.ndarray, warmth: float = 1.0) -> np.ndarray:
-    # Monochrome brown toning: luminance controls a single continuous palette.
+    # Tạo tông nâu đơn sắc bằng cách ánh xạ độ sáng sang bảng màu liên tục.
     luminance = ops.grayscale(image).astype(np.float32) / 255
     stops = np.array([0, 0.25, 0.5, 0.75, 1], dtype=np.float32)
     palette = np.array([[15, 10, 7], [77, 55, 35], [145, 111, 74],
@@ -135,7 +135,7 @@ def _retro(image: np.ndarray, grain_amount: float = 2.2, vignette_amount: float 
     color = image.astype(np.float32)
     luminance = ops.grayscale(image).astype(np.float32)[:, :, None]
     faded = color * 0.8 + luminance * 0.2
-    faded = faded * 0.87 + 16  # Lift blacks and lower whites like faded prints.
+    faded = faded * 0.87 + 16  # Nâng mức đen, hạ mức trắng để tạo màu ảnh cũ bị phai.
     tone = luminance / 255
     faded[:, :, 0] += 7 * tone[:, :, 0]
     faded[:, :, 2] += 5 - 12 * tone[:, :, 0]
@@ -157,7 +157,7 @@ FILTERS: dict[str, Callable[..., np.ndarray]] = {
     "Retro effect": _retro,
 }
 
-# name -> (Vietnamese label, minimum, maximum, default, step, help)
+# Tên tham số -> (nhãn tiếng Việt, nhỏ nhất, lớn nhất, mặc định, bước chỉnh, gợi ý).
 FILTER_PARAMETERS = {
     "Pencil sketch": {
         "line_scale": ("Cỡ nét chì", 0.5, 2.0, 1.0, 0.1, "Tăng để nét và vùng bóng rộng hơn."),

@@ -1,4 +1,4 @@
-"""Analytical fixtures for handwritten processing, independent of OpenCV."""
+"""Kiểm thử thuật toán tự cài bằng dữ liệu có đáp án tính được, không phụ thuộc OpenCV."""
 
 import subprocess
 import sys

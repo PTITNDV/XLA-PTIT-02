@@ -1,4 +1,4 @@
-"""Streamlit interface for the artistic image filters."""
+"""Giao diện Streamlit cho các bộ lọc ảnh nghệ thuật."""
 
 from PIL import Image, UnidentifiedImageError
 import streamlit as st

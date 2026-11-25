@@ -1,4 +1,4 @@
-"""Behavioral checks for every artistic filter."""
+"""Kiểm tra hoạt động của từng bộ lọc ảnh nghệ thuật."""
 
 import unittest
 

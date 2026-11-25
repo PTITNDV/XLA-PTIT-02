@@ -1,4 +1,4 @@
-"""Tests for input normalization and output encoding."""
+"""Kiểm thử chuẩn hóa ảnh đầu vào và mã hóa ảnh đầu ra."""
 
 from io import BytesIO
 import unittest
